@@ -41,6 +41,21 @@ UV="uv run -q --with bleak --with pillow --with unicorn --with pyelftools python
    Success is `printed=1/1 ... done`. Then go to the next photo.
 6. **Report** concisely: what printed, plus any failure with its status line.
 
+## Temp logging (temporary, to refit the cooldown curve)
+Every print, log temps to `temps.log` during the print and for 3 minutes after it.
+- During the print, use this instead of the step 5 command. It logs every status change, with seconds since the send started:
+  ```
+  echo "# NAME start $(date +%T)" >> temps.log
+  uv run -q --with bleak --with pillow --with unicorn --with pyelftools python -I -u kodak_ble.py ready/NAME.jpg 2>&1 | tr '\r' '\n' | grep -v '^sent [0-9]*/' | tee -a temps.log
+  ```
+- After `done`, run this in the background right away. It takes a reading every 30 s for 3 min, giving 7 readings with wall-clock times:
+  ```
+  echo "# NAME cooldown, done at $(date +%T)" >> temps.log
+  for i in 0 1 2 3 4 5 6; do echo "$(date +%T) $(uv run -q --with bleak --with pillow --with unicorn --with pyelftools python -I -u kodak_ble.py ready/NAME.jpg --dry-run 2>&1 | grep -o 'temp=[0-9]*')"; [ $i -lt 6 ] && sleep 30; done | tee -a temps.log
+  ```
+- Don't start another print while the cooldown poll is running. If the user wants to print sooner, stop the poll first.
+- In the report, include the start temp, the peak temp and the final cooldown reading.
+
 ## Color modes (`--color`)
 - `lut` (default, best): the app's color tables, emulated. Slight green tint in dark grays.
 - `raw`: no correction. Slightly pink overall.
