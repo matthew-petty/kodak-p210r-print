@@ -80,3 +80,7 @@ The printer's USB-C port is a factory provisioning console (ESP32-S3 USB-Serial-
 ## Disclaimer
 
 This is an unofficial project, not affiliated with Kodak or Prinics. Use at your own risk.
+
+## License
+
+MIT for the code in this repo. `libprinics_ip.so` and the app are not covered; they belong to their owners.
