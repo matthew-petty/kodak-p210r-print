@@ -16,7 +16,8 @@ UV="uv run -q --with bleak --with pillow --with unicorn --with pyelftools python
 - Shows up over BLE as `Kodak Instant-XXXX`. No pairing; it's not visible in macOS Bluetooth settings. It must be powered on (white light) and not connected to a phone.
 - It auto-powers off when idle. If the script says "No BLE device ... found", ask the user to power it on, then retry.
 - Print size is 640x1024 portrait (2:3.2). `kodak_ble.py` rotates landscape images 90° and **center-crops** to fill.
-- One print takes about 72 s and uses one sheet. Temperature rises about 12 per print, and the script waits if it reaches 55 or more.
+- One print takes about 72-80 s and uses one sheet. Temperature rises 12-17 per print (e.g. 32 → 49). The script checks only before sending and waits if it's 55 or more.
+- Cooldown (measured): exponential, τ ≈ 5 min, toward an idle temp of about 33. From 49: 43 at ~2 min, 40 at ~4, 37 at ~7, 35 at ~10, 33 at ~20. Read the temp without printing: `$UV kodak_ble.py ready/ANY.jpg --dry-run`.
 - Don't touch the USB-C serial port (`/dev/cu.usbmodem*`). It's a factory provisioning console, not a print path.
 
 ## Workflow: staged/ → compose → ready/ → print
