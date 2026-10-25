@@ -1,0 +1,20 @@
+# proprietary app files: extract locally (see README)
+apk/
+lib/
+# personal photos
+staged/
+ready/
+# local notes, logs, leftovers
+HANDOFF.md
+*.log
+test_proc.jpg
+kodak-ref/
+p210r.py
+listen.py
+mise.toml
+package.json
+package-lock.json
+node_modules/
+.histfile
+__pycache__/
+.DS_Store
