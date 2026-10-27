@@ -38,7 +38,7 @@ UV="uv run -q --with bleak --with pillow --with unicorn --with pyelftools python
 5. **Print**, one photo per command, in sequence. Never run two at once.
    `$UV kodak_ble.py ready/NAME.jpg [--copies N] 2>&1 | tr '\r' '\n'`
    Ready files are already at print size, so the script doesn't crop them.
-   Success is `printed=1/1 ... done`. Then go to the next photo.
+   Success is `printed=1/1 ... done`. Then go to the next photo. Failure prints an `error:` line and exits nonzero: 2 = printer error state, 3 = timed out.
 6. **Report** concisely: what printed, plus any failure with its status line.
 
 ## Temp logging (temporary, to refit the cooldown curve)
@@ -65,4 +65,5 @@ Every print, log temps to `temps.log` during the print and for 3 minutes after i
 ## Troubleshooting
 - Stuck at `printed=0/1` with `busy=0` and no motion: data was dropped. Have the user power-cycle the printer and retry; `--delay 0.03` slows the packets.
 - `busy=1` before sending: the printer is still finishing a job. Wait and retry.
-- Status bytes: [1] busy, [2] phase (ff, 0-3, 7 = done), [6:8] temp, [10]/[11] printed/total.
+- `error: state=6`: the job was aborted before printing. Seen with an empty cartridge and with a low battery. Have the user plug the printer into power and/or replace the cartridge, then retry. A `state=6` in the pre-send status is left over from the last job and can be ignored.
+- Status bytes: [1] busy, [2] phase (ff, 0-3, 7 = done), [3] state (0 ok, 6 aborted), [6:8] temp, [10]/[11] printed/total.

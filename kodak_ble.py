@@ -7,6 +7,9 @@ Protocol from com.prinics.kodak.photoprinter v5.1.3 (p003a3/f.java, PrintService
 - Payload: JPEG 640x1024 q90, zero-padded to >= 33792 bytes.
 - Status (16 B): [1] busy, [2] phase (ff, 0-3 = color passes, 7 = done), [3] state, [6:8] temperature (app waits if >= 55),
   [10]/[11] printed/total, [14] cartridge type.
+- state 6: job aborted before printing (seen with an empty cartridge and with a low battery). It stays set until the next job.
+
+Exit codes: 0 printed, 1 setup error (no printer, busy), 2 printer error state, 3 timed out.
 
 usage: uv run --with bleak --with pillow --with unicorn --with pyelftools python kodak_ble.py photo.jpg [--copies N] [--color raw|lut|full] [--dry-run]
 """
@@ -26,6 +29,7 @@ RX = '9877e0cd-a4d5-4860-a50b-ac10d83b6967'
 SIZE = (640, 1024)
 MIN_LEN = 33792
 CHUNK = 200
+STATES = {6: 'job aborted: cartridge empty or battery low (plug in to power)'}
 
 
 def prepare(src, color='lut'):
@@ -106,7 +110,12 @@ async def main():
             seen_busy |= s[1] == 1
             if seen_busy and s[1] == 0 and s[11] and s[10] >= s[11]:
                 print('done'); return
+            if seen_busy and s[1] == 0 and s[3]:
+                print(f'error: state={s[3]}: {STATES.get(s[3], "unknown printer error")}; printed={s[10]}/{s[11]}', file=sys.stderr)
+                sys.exit(2)
             await asyncio.sleep(0.6)
+        print(f'error: timed out after {a.timeout:.0f}s; printed={last[10]}/{last[11]}', file=sys.stderr)
+        sys.exit(3)
 
 
 if __name__ == '__main__':
