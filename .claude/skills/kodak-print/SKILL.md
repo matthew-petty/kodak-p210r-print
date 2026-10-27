@@ -65,5 +65,5 @@ Every print, log temps to `temps.log` during the print and for 3 minutes after i
 ## Troubleshooting
 - Stuck at `printed=0/1` with `busy=0` and no motion: data was dropped. Have the user power-cycle the printer and retry; `--delay 0.03` slows the packets.
 - `busy=1` before sending: the printer is still finishing a job. Wait and retry.
-- `error: state=6`: the job was aborted before printing. Seen with an empty cartridge and with a low battery. Have the user plug the printer into power and/or replace the cartridge, then retry. A `state=6` in the pre-send status is left over from the last job and can be ignored.
+- `error: state=6`: the job was aborted before printing because the battery is low. Have the user plug the printer into power, then retry. (The empty-cartridge error code is still unknown.) A `state=6` in the pre-send status is left over from the last job and can be ignored.
 - Status bytes: [1] busy, [2] phase (ff, 0-3, 7 = done), [3] state (0 ok, 6 aborted), [6:8] temp, [10]/[11] printed/total.

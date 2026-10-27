@@ -7,7 +7,7 @@ Protocol from com.prinics.kodak.photoprinter v5.1.3 (p003a3/f.java, PrintService
 - Payload: JPEG 640x1024 q90, zero-padded to >= 33792 bytes.
 - Status (16 B): [1] busy, [2] phase (ff, 0-3 = color passes, 7 = done), [3] state, [6:8] temperature (app waits if >= 55),
   [10]/[11] printed/total, [14] cartridge type.
-- state 6: job aborted before printing (seen with an empty cartridge and with a low battery). It stays set until the next job.
+- state 6: job aborted before printing: battery low. Cleared by printing again on external power. It stays set until the next job.
 
 Exit codes: 0 printed, 1 setup error (no printer, busy), 2 printer error state, 3 timed out.
 
@@ -29,7 +29,7 @@ RX = '9877e0cd-a4d5-4860-a50b-ac10d83b6967'
 SIZE = (640, 1024)
 MIN_LEN = 33792
 CHUNK = 200
-STATES = {6: 'job aborted: cartridge empty or battery low (plug in to power)'}
+STATES = {6: 'job aborted: battery low (plug in to power)'}
 
 
 def prepare(src, color='lut'):
